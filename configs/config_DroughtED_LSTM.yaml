@@ -1,0 +1,111 @@
+# Configuration file
+name: 'XAIDA4Detection'
+# Addressed task, choices: Classification, OutlierDetection
+task: 'Classification'
+# Use a previously saved model to skip train phase
+from_scratch: true
+# Path to the best model, required if from_scrath: false
+best_run_path: ''
+# Directory to save model outputs and results
+save_path: "experiments/" 
+
+# Database and DataLoader definition
+data:
+    name: 'DroughtED' 
+    data_dim: 1 # Data dimension
+    root: './databases/DroughtED' # Database root
+    data_file: 'data' # Database folder inside database root
+    input_size: 5  # Number of input features
+    num_classes: 2 # Number of categories
+    class_bound: 1 # Threshold for binarisation
+    window_size: 20 # How many days in the past as input (default: 180)
+    time_aggregation: true # Time aggregation for visualization purposes
+    train_slice:
+       start: '2017-01-01'
+       end: '2018-12-31'
+    val_slice:
+       start: '2019-04-01'
+       end: '2019-10-31'
+    test_slice:
+       start: '2020-01-01'
+       end: '2020-12-31'
+    features: # ECVs included in the database
+        - 'PRECTOT' 
+        - 'PS'
+        - 'QV2M'
+        - 'T2M'
+        - 'T2MDEW'
+        - 'T2M_MAX'
+        - 'T2M_MIN'
+        - 'T2M_RANGE'
+        - 'TS'
+        - 'WS10M'
+        - 'WS10M_MAX'
+        - 'WS10M_MIN'
+        - 'WS10M_RANGE'
+        - 'WS50M'
+        - 'WS50M_MAX'
+        - 'WS50M_MIN'
+        - 'WS50M_RANGE'
+    features_selected: [0,1,2,3,7] # ECVs selected
+
+# Architecture definition
+arch:
+    # Select user-defined model (true/false)
+    user_defined: True
+    # Type of architecture to be used (e.g., 'UNET')
+    type: "UserDefined_LSTM"
+    # Parameters to configure the architecture
+    params:
+        hidden_dim: 512
+        n_layers: 2
+        dropout: 0.1
+    # Model input dimension (1: 1D, 2: 2D)
+    input_model_dim: 2
+    # Model output dimension (1: 1D, 2: 2D)
+    output_model_dim: 1
+
+# Definition of the training stage
+implementation:
+    # Loss function
+    loss: 
+        user_defined: false
+        type: 'sigmoid_focal_loss' # 'binary_cross_entropy' # # Type
+        package: 'torchvision.ops' # 'torch.nn.functional' #
+        masked: false # Use masks to compute loss
+        # Parameters for the loss function
+        params:
+            reduction: 'none'
+            alpha: 0.75
+            gamma: 2.5
+    # Definition of the optimizer
+    optimizer:
+        type: "Adam" # Optimizer type
+        lr: 0.0005 # Learning rate
+        weight_decay: 0 # Weight decay
+        gclip_value: 0 # Gradient clipping values
+    
+    # Definition of Pytorch trainer
+    trainer:  
+        num_gpus: 0 # Number of GPUs to be used
+        epochs: 100 # Number of epochs
+        batch_size: 8
+        monitor: # Metric to be monitored during training
+            split: 'val'
+            metric: 'loss'
+        monitor_mode: 'min' # Monitor mode (increase or decrease monitored metric value)
+        early_stop: 3 # Number of steps to perform early stopping
+        save_dir: "experiments/" # Directory to save model outputs and results
+    # Definition of Pytorch data loader
+    data_loader: 
+        num_workers: 16
+
+# Types of choosen evaluations, choices: Visualization, Characterization, XAI
+evaluation:
+    metrics:
+        Accuracy: {task: 'binary'}
+        F1Score: {task: 'binary'}
+        Precision: {task: 'binary'}
+        Recall: {task: 'binary'}
+        CohenKappa: {task: 'binary'}
+    visualization: true
