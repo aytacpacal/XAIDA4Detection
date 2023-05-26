@@ -14,7 +14,7 @@ class UD_LSTM(nn.Module):
     def __init__(self, config):
         super().__init__()
         
-        input_dim = np.prod(config['data']['input_size_train'])
+        input_dim = np.prod(config['data']['input_size'])
 
         if config['data']['num_classes'] > 2:
             classes = config['data']['num_classes']
