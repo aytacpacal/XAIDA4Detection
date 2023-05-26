@@ -15,12 +15,12 @@ def plot_confusion_matrix(cm , outputs, labels, path):
     """
     Compute and plot confusion matrix for evaluation
     """
-    plt.figure(figsize=(10,10))
+    plt.figure(figsize=(12,10))
     cm = cm(outputs, labels)
     sn.set(font_scale=1.4)
-    sn.heatmap(np.round(cm,3), annot=True, annot_kws={"size": 12}, fmt="g", vmax=1)
-    plt.xlabel('Predicted labels')
-    plt.ylabel('True labels')
+    sn.heatmap(np.round(cm,2), annot=True, annot_kws={"size": 18}, fmt="g", vmax=1)
+    plt.xlabel('Predicted labels', fontsize=18)
+    plt.ylabel('True labels', fontsize=18)
     plt.savefig(path+'/confusionMatrix.png', dpi=300)
     sn.set(font_scale=1) #Reset font scale
 
@@ -38,7 +38,8 @@ def plot_temporal_results(path, xticks_labels, labels, outputs_when_event, outpu
     ax.plot(outputs_when_event, c = 'tab:purple', label = 'Event signal', linewidth=3)
     if output_without_event != None:
         ax.plot(output_without_event, c = 'tab:blue', label = 'Background signal', linewidth=3)
-    ax.set_xticklabels(xticks_labels, rotation=60)
+    ax.set_xticks(np.arange(len(xticks_labels))[::5], rotation=60)
+    ax.set_xticklabels(xticks_labels[::5], rotation=60)    
     ax.set_ylabel('P(t)', fontsize=20)    
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width * 0.8, box.height])

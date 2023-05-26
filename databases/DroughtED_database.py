@@ -8,6 +8,7 @@ from tqdm.auto import tqdm
 from datetime import datetime
 from scipy.interpolate import interp1d
 from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import StandardScaler
 from datetime import datetime
 import torch
 import torch.nn.functional as F
@@ -78,7 +79,7 @@ class DroughtED(torch.utils.data.Dataset):
         slice = getattr(self, self.period+'_slice')
         start = slice['start']
         end = slice['end']
-        dfs = dfs[(dates > start) & (dates < end)]
+        dfs = dfs[(dates > start) & (dates < end)].copy()
         return dfs
 
     def binarize_data(self):
@@ -112,8 +113,10 @@ class DroughtED(torch.utils.data.Dataset):
         y_target = np.empty((len(self.dfs) // self.window_size , 1))
         
         count = 0
-        ## Iteration over the fips  
+        ## Iteration over the fips
+        # print(self.dfs.index.get_level_values(0))
         for fips in tqdm(score_df.index.get_level_values(0).unique()):
+        # for fips in tqdm(score_df.index.get_level_values(0).unique().values[:100]):
 
             ## Select randomly where to start sampling
             if random_state is not None and self.window_size != 1:
@@ -122,7 +125,7 @@ class DroughtED(torch.utils.data.Dataset):
                 start_i = 1
             
             ## Get all samples with the fips ID that we are evaluating 
-            fips_df =self.dfs[(self.dfs.index.get_level_values(0) == fips)]
+            fips_df = self.dfs[(self.dfs.index.get_level_values(0) == fips)]
             X = fips_df[time_data_cols].values
             y = fips_df["score"].values
 
@@ -139,7 +142,7 @@ class DroughtED(torch.utils.data.Dataset):
         print(f"loaded {count} samples")
 
         # Normalize the data
-        if normalize: 
+        if normalize:
             X_time = self.normalize(X_time)
         data = [X_time[:count], y_target[:count]]
 
@@ -170,12 +173,14 @@ class DroughtED(torch.utils.data.Dataset):
         X_time_train = X_time_train[0]
         for index in tqdm(range(X_time.shape[-1])):
             # Fit data    
-            self.scaler_dict[index] = RobustScaler().fit(X_time_train[:, :, index].reshape(-1, 1))
+            # self.scaler_dict[index] = RobustScaler().fit(X_time_train[:, :, index].reshape(-1, 1))
+            self.scaler_dict[index] = StandardScaler().fit(X_time_train[:, :, index].reshape(-1, 1))
             X_time[:, :, index] = (
                 self.scaler_dict[index]
                 .transform(X_time[:, :, index].reshape(-1, 1))
                 .reshape(-1, X_time.shape[-2])
-            )          
+            )
+        X_time = np.clip(X_time, a_min=-3., a_max=3.) / 3.
         index = 0
         return X_time                                          
                                                     

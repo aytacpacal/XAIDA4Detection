@@ -31,7 +31,7 @@ class PyodBackbone(GenericBackbone):
 
     def inference(self):
         # Inference stage
-        models = {self.config['arch']['type']:self.model.get_model()}
+        models = {self.config['arch']['type']: self.model.get_model()}
         evaluator = OutlierDetectionEvaluator(self.config, models, self.data_test)
         evaluator.evaluate()
     

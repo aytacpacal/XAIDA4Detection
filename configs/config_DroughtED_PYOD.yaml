@@ -4,8 +4,11 @@ name: 'XAIDA4Detection'
 task: 'OutlierDetection'
 # Use a previously saved model to skip train phase
 from_scratch: true
+# Path to the best model, required if from_scrath: false
+best_run_path: ""
 # Directory to save model outputs and results
-save_path: "experiments/" 
+save_path: "experiments/"
+ 
 # Database and DataLoader definition
 data:
     name: 'DroughtED' 
@@ -73,6 +76,17 @@ arch:
     step_samples_train: 5000
     step_samples_evaluation: 2000
 
-# Types of choosen evaluations, choices: Visualization, Characterization, XAI
-evaluation:
+# Definition of the training stage
+implementation:
+    # Definition of Pytorch trainer
+    trainer:  
+        batch_size: 8 # Batch size
+    # Definition of Pytorch data loader
+    data_loader: 
+        num_workers: 16
+
+# Types of chosen evaluations, choices: Visualization, Characterization, XAI
+evaluation:  
     visualization: true
+    characterization: false
+    xai: false

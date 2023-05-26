@@ -26,17 +26,11 @@ pip install -r requirements_xaida.txt install libs
 
 # 4) Run main.py of XAIDA4Detection using a config file. Some examples:
 
-# SYRIA Droughts database and Angle-Based Outlier Detection model (from PyOD) 
-python main.py --config=/configs/config_SYRIA_ABOD.yaml
+# DroughtED database and K-Nearest Neighbors (KNN) model (from PyOD) 
+python main.py --config=/configs/config_DroughtED_PYOD.yaml
 
-# SYRIA Droughts database and K-Nearest Neighbors model (from PyOD) 
-python main.py --config=/configs/config_SYRIA_KNN.yaml
-
-# SYRIA Droughts database and UNET model (from Segmentation Models PyTorch) 
-python main.py --config=/configs/config_SYRIA_UNET.yaml
-
-# SYRIA Droughts database and CNN-based encoder-decoder architecture (user-defined) 
-python main.py --config=/configs/config_SYRIA_CNN2D.yaml
+# DroughtED database and LSTM-based architecture (user-defined) 
+python main.py --config=/configs/config_DroughtED_LSTM.yaml
 ```
 
 ## Contributing

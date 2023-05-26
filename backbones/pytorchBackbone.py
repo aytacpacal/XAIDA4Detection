@@ -30,6 +30,9 @@ class PytorchBackbone(GenericBackbone):
         # Model
         self.model = PytorchModel(self.config)
 
+        # Loggers
+        # wandb_logger = pl_loggers.WandbLogger(save_dir = config['trainer']['save_dir'] + '/logs/', 
+        #                                       project = 'template', mode = 'online')
         # Callbacks
         # Init ModelCheckpoint callback, monitoring 'val_loss'
         checkpoint_callback = ModelCheckpoint(dirpath = self.cp_path,
@@ -48,7 +51,8 @@ class PytorchBackbone(GenericBackbone):
 
         # Trainer
         self.trainer = pl.Trainer(accumulate_grad_batches = 1, callbacks = callbacks, 
-                              gpus = self.config['implementation']['trainer']['num_gpus'],
+                              accelerator=self.config['implementation']['trainer']['accelerator'],
+                              devices=self.config['implementation']['trainer']['devices'],
                               gradient_clip_val = self.config['implementation']['optimizer']['gclip_value'],
                               logger = [tb_logger], 
                               max_epochs = self.config['implementation']['trainer']['epochs'],
@@ -110,4 +114,3 @@ class PytorchBackbone(GenericBackbone):
         except:
             print('[!] Specify a valid trained model in the configuration file field best_run_path')
             sys.exit()
-        
